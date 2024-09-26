@@ -10,8 +10,8 @@ See [Hill et al.](https://arxiv.org/abs/2003.07355) where CLASS_EDE is implement
 
 ## CLASS edited by
 - J. Colin Hill; jch2200 at columbia.edu
-- Evan McDonough; evan_mcdonough at brown.edu
-- Michael W. Toomey; michael_toomey at brown.edu
+- Evan McDonough; e.mcdonough at uwinnipeg.ca
+- Michael W. Toomey; mtoomey at mit.edu
 
 ## Files 
 
