@@ -6,7 +6,7 @@ A modified version of the publicly available Einstein-Boltzmann code [CLASS](htt
 
 See [Hill et al.](https://arxiv.org/abs/2003.07355) where CLASS_EDE is implemented to test the validity of the EDE model. 
 
-![](https://github.com/mwt5345/class_ede/blob/master/class/figures-for-paper/scf/fEDE_v_z.png) <!-- .element height="10%" width="10%" -->
+![](https://github.com/mwt5345/class_ede/blob/class_ede/figures-for-paper/scf/fEDE_v_z.png) <!-- .element height="10%" width="10%" -->
 
 ## CLASS edited by
 - J. Colin Hill; jch2200 at columbia.edu
