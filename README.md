@@ -19,16 +19,14 @@ All CLASS files in the directory class, the relevant file for the sampler Cobaya
 
 ## Installation
 
-After cloning or downloading the repository, compile CLASS_EDE with make in the [class](https://github.com/mwt5345/class_ede/tree/master/class) directory.
+After cloning or downloading the repository, compile CLASS_EDE with make.
 
 $ make class
-
-To utilize Cobaya with CLASS_EDE replace stock classy.py with the modified version [here](https://github.com/mwt5345/class_ede/tree/master/cobaya).
 
 ## Examples 
 
 ### Python
-Jupyter notebooks with worked out examples in Python can be found [here](https://github.com/mwt5345/class_ede/tree/master/class/notebooks-ede).
+Jupyter notebooks with worked out examples in Python can be found in notebooks-ede.
 
 ### C
 
