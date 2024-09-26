@@ -1,120 +1,86 @@
-CLASS: Cosmic Linear Anisotropy Solving System  {#mainpage}
-==============================================
+[![](https://img.shields.io/badge/arXiv-2003.07355%20-red.svg)](https://arxiv.org/abs/2003.07355)
 
-Authors: Julien Lesgourgues, Thomas Tram, Nils Schoeneberg
+# CLASS_EDE: CLASS for Early Dark Energy
 
-with several major inputs from other people, especially Benjamin
-Audren, Simon Prunet, Jesus Torrado, Miguel Zumalacarregui, Francesco
-Montanari, Deanna Hooper, Samuel Brieden, Daniel Meinert, Matteo Lucca, etc.
+A modified version of the publicly available Einstein-Boltzmann code [CLASS](https://github.com/lesgourg/class_public) to implement Early Dark Energy (EDE). CLASS_EDE solves for the evolution of the scalar field perturbations directly using the perturbed Klein-Gordon equation and implements adiabatic initial conditions for the scalar field fluctuations. The code allows one to specify the EDE model parameters in terms of the particle physics parameters *f* and *m* or effective EDE parameters *f_EDE* and *z_c*.
 
-For download and information, see http://class-code.net
+See [Hill et al.](https://arxiv.org/abs/2003.07355) where CLASS_EDE is implemented to test the validity of the EDE model. 
+
+![](https://github.com/mwt5345/class_ede/blob/master/class/figures-for-paper/scf/fEDE_v_z.png) <!-- .element height="10%" width="10%" -->
+
+## CLASS edited by
+- J. Colin Hill; jch2200 at columbia.edu
+- Evan McDonough; evan_mcdonough at brown.edu
+- Michael W. Toomey; michael_toomey at brown.edu
+
+## Files 
+
+All CLASS files in the directory class, the relevant file for the sampler Cobaya is in the  directory cobaya.
+
+## Installation
+
+After cloning or downloading the repository, compile CLASS_EDE with make in the [class](https://github.com/mwt5345/class_ede/tree/master/class) directory.
+
+$ make class
+
+To utilize Cobaya with CLASS_EDE replace stock classy.py with the modified version [here](https://github.com/mwt5345/class_ede/tree/master/cobaya).
+
+## Examples 
+
+### Python
+Jupyter notebooks with worked out examples in Python can be found [here](https://github.com/mwt5345/class_ede/tree/master/class/notebooks-ede).
+
+### C
+
+CLASS_EDE can be run in C just as normal CLASS. See explanatory-EDE.ini for EDE implementation details.
+
+$ ./class explanatory-EDE.ini
+
+## Modifications to CLASS 
+
+Modifications are explained below. All edits are flagged in the code by "EDE-edit".
+
+(1) Scalar field parameters: 
+
+The syntax for entering scalar field parameters has been changed to the following: the user must input one of {m_scf,log10m_scf,log10z_c} and one of {f_scf,log10f_scf,fEDE}, as well the power law n_scf, the initial field displacement thetai (=\phi_i /f), and an additive constant CC_scf. The units of f_scf and m_scf are eV. Note that fEDE may only be input if log10z_c is also input. 
+
+(2) Background dynamics:
+
+The scalar field is implemented in background.c in a seemingly trivial way, with the key detail that V(\phi) includes an additive constant. This is used as the "tuning parameter" in all CLASS runs, and the explicit Omega_Lambda is set to 0.
+
+(3) To run as LCDM: 
+
+Works the same as normal CLASS. Note the CC is now handled by Omega_Lambda!
+
+(4) Perturbations: 
+
+Adiabatic initial conditions for the scalar field are implemented in perturbations.c . 
+
+(5) fEDE and z_c: 
+
+We have implemented the calculation of f_EDE and z_c into the background module and python wrapper. We have also implemented a the built-in shooting algorithm for fEDE and log10z_c, in input.c, allowing the user to specify {fEDE,log10z_c,thetai} and CLASS will find the corresponding {f_scf,m_scf,thetai}.
+
+(6) Exit codes:
+
+Large values of f_{EDE} (>.9) will crash CLASS (often the thermodynamics module). Such large values are not physical. To avoid crashing an MCMC run, an error code has been added to background.c, "fEDE = %e instead of < 0.5"
+
+(7) fsigma8:
+
+Defined a function fsigma8 = f(z)*sigma8(z) for use with RSD likelihoods.
+
+(8) P_k_max_h/Mpc too small: 
+
+CLASS run in c, i.e. with the command ./class xxxx.ini , throws a warning if you try to compute the non-linear P(k) at high-z, requiring too high k values (as set by P_k_max). The python wrapper flags this warning as a CosmoSevereError and will kill the evaluation. This will crash an MCMC sampler like Cobaya; the DES likelihood sets P_k_max=15 (overwriting the user-input value), which is too low for some corners of parameter space in certain models. This problem has been resolved by CosmoSevereError-->CosmoComputationError in classy.pyx, and with an exception added to Cobaya's classy.py . 
 
 
-Compiling CLASS and getting started
------------------------------------
+## Modifications to Cobaya 
 
-(the information below can also be found on the webpage, just below
-the download button)
+One should replace stock classy.py from [Cobaya](https://github.com/CobayaSampler/cobaya) with the modified version [here](https://github.com/mwt5345/class_ede/tree/master/cobaya).
 
-Download the code from the webpage and unpack the archive (tar -zxvf
-class_vx.y.z.tar.gz), or clone it from
-https://github.com/lesgourg/class_public. Go to the class directory
-(cd class/ or class_public/ or class_vx.y.z/) and compile (make clean;
-make class). You can usually speed up compilation with the option -j:
-make -j class. If the first compilation attempt fails, you may need to
-open the Makefile and adapt the name of the compiler (default: gcc),
-of the optimization flag (default: -O4 -ffast-math) and of the OpenMP
-flag (default: -fopenmp; this flag is facultative, you are free to
-compile without OpenMP if you don't want parallel execution; note that
-you need the version 4.2 or higher of gcc to be able to compile with
--fopenmp). Many more details on the CLASS compilation are given on the
-wiki page
+(1) Error handling: 
 
-https://github.com/lesgourg/class_public/wiki/Installation
+Cobaya can bypass a CLASS "CosmoComputationError" by assigning it zero likelihood and then continuing to sample. This has been implemented for extremely large values of fEDE, and for cosmologies where P_k_max_h/Mpc=15 [or the value set in _DES_prototype.py] is not sufficient to compute P(k).
 
-(in particular, for compiling on Mac >= 10.9 despite of the clang
-incompatibility with OpenMP).
+(2) For RSD: 
 
-To check that the code runs, type:
-
-    ./class explanatory.ini
-
-The explanatory.ini file is THE reference input file, containing and
-explaining the use of all possible input parameters. We recommend to
-read it, to keep it unchanged (for future reference), and to create
-for your own purposes some shorter input files, containing only the
-input lines which are useful for you. Input files must have a *.ini
-extension. We provide an example of an input file containing a
-selection of the most used parameters, default.ini, that you may use as a
-starting point.
-
-If you want to play with the precision/speed of the code, you can use
-one of the provided precision files (e.g. cl_permille.pre) or modify
-one of them, and run with two input files, for instance:
-
-    ./class test.ini cl_permille.pre
-
-The files *.pre are suppposed to specify the precision parameters for
-which you don't want to keep default values. If you find it more
-convenient, you can pass these precision parameter values in your *.ini
-file instead of an additional *.pre file.
-
-The automatically-generated documentation is located in
-
-    doc/manual/html/index.html
-    doc/manual/CLASS_manual.pdf
-
-On top of that, if you wish to modify the code, you will find lots of
-comments directly in the files.
-
-Python
-------
-
-To use CLASS from python, or ipython notebooks, or from the Monte
-Python parameter extraction code, you need to compile not only the
-code, but also its python wrapper. This can be done by typing just
-'make' instead of 'make class' (or for speeding up: 'make -j'). More
-details on the wrapper and its compilation are found on the wiki page
-
-https://github.com/lesgourg/class_public/wiki
-
-Plotting utility
-----------------
-
-Since version 2.3, the package includes an improved plotting script
-called CPU.py (Class Plotting Utility), written by Benjamin Audren and
-Jesus Torrado. It can plot the Cl's, the P(k) or any other CLASS
-output, for one or several models, as well as their ratio or percentage
-difference. The syntax and list of available options is obtained by
-typing 'pyhton CPU.py -h'. There is a similar script for MATLAB,
-written by Thomas Tram. To use it, once in MATLAB, type 'help
-plot_CLASS_output.m'
-
-Developing the code
---------------------
-
-If you want to develop the code, we suggest that you download it from
-the github webpage
-
-https://github.com/lesgourg/class_public
-
-rather than from class-code.net. Then you will enjoy all the feature
-of git repositories. You can even develop your own branch and get it
-merged to the public distribution. For related instructions, check
-
-https://github.com/lesgourg/class_public/wiki/Public-Contributing
-
-Using the code
---------------
-
-You can use CLASS freely, provided that in your publications, you cite
-at least the paper `CLASS II: Approximation schemes <http://arxiv.org/abs/1104.2933>`. Feel free to cite more CLASS papers!
-
-Support
--------
-
-To get support, please open a new issue on the
-
-https://github.com/lesgourg/class_public
-
-webpage!
+Get fsigma8(z) from CLASS
