@@ -65,3 +65,5 @@ Defined a function fsigma8 = f(z)*sigma8(z) for use with RSD likelihoods.
 (8) P_k_max_h/Mpc too small: 
 
 CLASS run in c, i.e. with the command ./class xxxx.ini , throws a warning if you try to compute the non-linear P(k) at high-z, requiring too high k values (as set by P_k_max). The python wrapper flags this warning as a CosmoSevereError and will kill the evaluation. This will crash an MCMC sampler like Cobaya; the DES likelihood sets P_k_max=15 (overwriting the user-input value), which is too low for some corners of parameter space in certain models. This problem has been resolved by CosmoSevereError-->CosmoComputationError in classy.pyx, and with an exception added to Cobaya's classy.py . 
+
+### The previous version of class_ede can be found [here](https://github.com/mwt5345/class_ede_v2).
