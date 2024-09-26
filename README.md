@@ -13,10 +13,6 @@ See [Hill et al.](https://arxiv.org/abs/2003.07355) where CLASS_EDE is implement
 - Evan McDonough; e.mcdonough at uwinnipeg.ca
 - Michael W. Toomey; mtoomey at mit.edu
 
-## Files 
-
-All CLASS files in the directory class, the relevant file for the sampler Cobaya is in the  directory cobaya.
-
 ## Installation
 
 After cloning or downloading the repository, compile CLASS_EDE with make.
